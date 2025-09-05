@@ -1,0 +1,80 @@
+import csv
+import os
+
+# Book class
+class Book:
+    def __init__(self, title, author, isbn, available=True):
+        self.title = title
+        self.author = author
+        self.isbn = isbn
+        self.available = available
+
+    def to_list(self):
+        return [self.title, self.author, self.isbn, str(self.available)]
+
+
+# File handling class
+class Library:
+    FILE_NAME = "books.csv"
+
+    def __init__(self):
+        # Create file if it does not exist
+        if not os.path.exists(self.FILE_NAME):
+            with open(self.FILE_NAME, "w", newline="") as file:
+                writer = csv.writer(file)
+                writer.writerow(["Title", "Author", "ISBN", "Available"])
+
+    def add_book(self, book):
+        with open(self.FILE_NAME, "a", newline="") as file:
+            writer = csv.writer(file)
+            writer.writerow(book.to_list())
+        print(f" Book '{book.title}' added!")
+
+    def list_books(self):
+        with open(self.FILE_NAME, "r") as file:
+            reader = csv.DictReader(file)
+            print("\n Library Books:")
+            for row in reader:
+                print(f"- {row['Title']} by {row['Author']} | ISBN: {row['ISBN']} | Available: {row['Available']}")
+
+    def update_availability(self, isbn, status):
+        rows = []
+        updated = False
+        with open(self.FILE_NAME, "r") as file:
+            reader = csv.DictReader(file)
+            for row in reader:
+                if row["ISBN"] == isbn:
+                    row["Available"] = str(status)
+                    updated = True
+                rows.append(row)
+
+        if updated:
+            with open(self.FILE_NAME, "w", newline="") as file:
+                writer = csv.DictWriter(file, fieldnames=["Title", "Author", "ISBN", "Available"])
+                writer.writeheader()
+                writer.writerows(rows)
+            print(f" Book with ISBN {isbn} updated!")
+        else:
+            print(" Book not found.")
+
+# Example usage
+library = Library()
+
+# 1. Add a new book
+library.add_book(Book("Python Basics", "John Smith", "1111"))
+library.add_book(Book("Data Science 101", "Jane Doe", "2222"))
+
+# 2. List all the books
+library.list_books()
+
+# 3. Borrow a book (set available = False)
+library.update_availability("1111", False)
+
+# 4. Return a book (set available = True)
+library.update_availability("1111", True)
+
+# 5. List again
+the library.list_books()
+
+
+
