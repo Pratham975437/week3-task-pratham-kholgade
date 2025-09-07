@@ -1,0 +1,24 @@
+import pandas as pd
+import numpy as np
+
+df = pd.read_csv("students.csv")
+
+print(" Subject Statistics:")
+for subject in df.columns[1:]:
+    avg = df[subject].mean()
+    high = df[subject].max()
+    low = df[subject].min()
+    print(f"{subject}: Avg={avg:.2f}, High={high}, Low={low}")
+
+df["Average"] = df.iloc[:, 1:].mean(axis=1)
+
+top_students = df.sort_values(by="Average", ascending=False).head(3)
+print("\n Top 3 Students by Average Score:")
+print(top_students[["Name", "Average"]])
+
+df["Pass/Fail"] = np.where(df["Average"] >= 40, "Pass", "Fail")
+
+print("\n Final Data:")
+print(df)
+
+df.to_csv("students_results.csv", index=False)
